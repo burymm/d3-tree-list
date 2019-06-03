@@ -1,0 +1,37 @@
+.dragging {
+    position: fixed;
+}
+
+.selected {
+    color: orange;
+    cursor: grab;
+}
+
+.selected span {
+    cursor: grab;
+}
+
+.node {
+    position: absolute;
+    list-style: none;
+    cursor: default;
+}
+
+.node span {
+    margin-right: 3px;
+    user-select: none;
+}
+
+.node .caret {
+    font-size: 10px;
+}
+
+.ul-list {
+    display: flex;
+    flex-direction: row;
+}
+
+.list-item {
+    min-width: 50%;
+    position: relative;
+}
