@@ -6,6 +6,8 @@ var init = {
 let container;
 let isDragging = false;
 let elementToDrag;
+window.circles = [];
+window.functions = [];
 
 function dragstarted(d) {
     //d3.select(this).raise().classed("active", true);
@@ -31,6 +33,56 @@ function dragended(d) {
     this.classList.remove('dragging');
     isDragging = false;
     console.log(elementToDrag, 'drag element', d, this);
+
+    var circle = container.append("line")
+        .attr("x1", init.x)
+        .attr("y1", init.y)
+        .attr("x2", d3.event.sourceEvent.clientX)
+        .attr("y2", d3.event.sourceEvent.clientY)
+        .attr("stroke-width", 10)
+        .attr("stroke", "black");
+
+    circle.on('click', function(e) {
+        const rectSize = 10;
+        const xStart = Math.abs(this.x1.baseVal.value - this.x2.baseVal.value) / 2;
+        const yStart = Math.abs(this.y1.baseVal.value - this.y2.baseVal.value) / 2;
+        var rect = container.append("rect")
+            .attr("x", (xStart - rectSize)  / 2)
+            .attr("y", (this.y1.baseVal.value - yStart) - rectSize / 2)
+            .attr("width", xStart + rectSize / 2)
+            .attr("height", yStart + rectSize / 2)
+            .style('fill', 'yellow');
+
+        container.append("text")
+            .classed('data', true)
+            .attr("x", (xStart - rectSize)  / 2 + 30)
+            .attr("y", (this.y1.baseVal.value - yStart) - rectSize / 2 + 30)
+            .attr("fill","#000")
+            .style("stroke-width", 1)
+            .style({"font-size":"18px","z-index":"999999999"})
+            .style("text-anchor", "middle")
+            .text(function(d) { return "test";});
+
+        // this.append('text')
+        //     .attr("class", "text")
+        //     .attr("text-anchor", "middle")
+        //     .attr("dx", 0)
+        //     .attr("dy", ".35em")
+        //     .text("text");
+        //
+        // this.insert("rect","text")
+        //     .attr("width", function(d){return d.bbox.width})
+        //     .attr("height", function(d){return d.bbox.height})
+        //     .style("fill", "yellow");
+
+        d3.select(rect).data(rect).enter().append('text').text(function(d) {return d;});
+        window.functions.push(rect);
+        console.log('clicked line', d3.event, d3.select(this));
+
+
+    });
+
+    window.circles.push(circle);
 }
 
 function mouseMoving(d) {
@@ -43,8 +95,12 @@ function mouseMoving(d) {
 
 document.addEventListener('DOMContentLoaded', () => {
     container = d3.select("body").append("svg")
-        .attr("width", 800)
-        .attr("height", 600);
+        .attr('class',  'container')
+        .attr("width", window.innerWidth)
+        .attr("height", window.innerHeight)
+       /* .on('click', (e) => {
+            console.log(e);
+        })*/;
 });
 
 var id = 0;
