@@ -8,6 +8,7 @@ let isDragging = false;
 let elementToDrag;
 let sourceList;
 let targetList;
+let targetElement;
 
 window.circles = [];
 window.functions = [];
@@ -41,9 +42,9 @@ function dragended(d) {
 
     if (!!sourceList && !!targetList && sourceList !== targetList) {
         var circle = container.append("line")
-            .attr("x1", init.x)
+            .attr("x1", sourceList.clientLeft + sourceList.clientWidth)
             .attr("y1", init.y)
-            .attr("x2", d3.event.sourceEvent.clientX)
+            .attr("x2", targetElement.offsetParent.offsetLeft)
             .attr("y2", d3.event.sourceEvent.clientY)
             .attr("stroke-width", 10)
             .attr("stroke", "black");
@@ -149,6 +150,7 @@ d3.json("data.json", function (err, data) {
                 render(data, d);
             })
             .on("mouseover", function (d) {
+                targetElement = this;
                 targetList = this.parentElement.parentElement;
                 d3.select(this).classed("selected", true);
                 if (!!targetList && !!sourceList && targetList !== sourceList) {

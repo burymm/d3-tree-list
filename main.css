@@ -29,9 +29,14 @@
 .ul-list {
     display: flex;
     flex-direction: row;
+    max-width: 800px;
 }
 
 .list-item {
-    min-width: 50%;
     position: relative;
+    min-width: 200px;
+}
+
+.item-space {
+    flex: 1;
 }
