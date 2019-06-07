@@ -31,6 +31,37 @@ function dragged(d) {
     // console.log('dragged', d3.event.x, d3.event.y);
 }
 
+function drawFunction() {
+    const rectWidth = 200;
+    const rectHeight = 100;
+    const xStart = Math.abs(this.x1.baseVal.value + this.x2.baseVal.value) / 2 - (rectWidth / 2);
+    const yStart = Math.abs(this.y1.baseVal.value + this.y2.baseVal.value) / 2 - ( rectHeight / 2);
+    var rect = container.append("rect")
+        .attr("x", xStart)
+        .attr("y", yStart)
+        .attr("width", rectWidth)
+        .attr("height", rectHeight)
+        .style('fill', 'yellow');
+
+    container.append("text")
+        .classed('data', true)
+        .attr("x", xStart + rectWidth / 2)
+        .attr("y", yStart + rectHeight / 2)
+        .attr("fill", "#000")
+        .style("stroke-width", 1)
+        .style({"font-size": "18px", "z-index": "999999999"})
+        .style("text-anchor", "middle")
+        .text(function (d) {
+            return "test";
+        });
+
+    d3.select(rect).data(rect).enter().append('text').text(function (d) {
+        return d;
+    });
+    window.functions.push(rect);
+    console.log('clicked line', d3.event, d3.select(this));
+}
+
 function dragended(d) {
     // d3.select(this).classed("active", false);
     // console.log('dragended');
@@ -38,7 +69,7 @@ function dragended(d) {
     this.style.top = init.y;
     this.classList.remove('dragging');
     isDragging = false;
-    //console.log(elementToDrag, 'drag element', d, this);
+    console.log('connection from', this, ' to ', targetElement);
 
     if (!!sourceList && !!targetList && sourceList !== targetList) {
         var circle = container.append("line")
@@ -49,47 +80,7 @@ function dragended(d) {
             .attr("stroke-width", 10)
             .attr("stroke", "black");
 
-        circle.on('click', function (e) {
-            const rectSize = 10;
-            const xStart = Math.abs(this.x1.baseVal.value - this.x2.baseVal.value) / 2;
-            const yStart = Math.abs(this.y1.baseVal.value - this.y2.baseVal.value) / 2;
-            var rect = container.append("rect")
-                .attr("x", (xStart - rectSize) / 2)
-                .attr("y", (this.y1.baseVal.value - yStart) - rectSize / 2)
-                .attr("width", xStart + rectSize / 2)
-                .attr("height", yStart + rectSize / 2)
-                .style('fill', 'yellow');
-
-            container.append("text")
-                .classed('data', true)
-                .attr("x", (xStart - rectSize) / 2 + 30)
-                .attr("y", (this.y1.baseVal.value - yStart) - rectSize / 2 + 30)
-                .attr("fill", "#000")
-                .style("stroke-width", 1)
-                .style({"font-size": "18px", "z-index": "999999999"})
-                .style("text-anchor", "middle")
-                .text(function (d) {
-                    return "test";
-                });
-
-            // this.append('text')
-            //     .attr("class", "text")
-            //     .attr("text-anchor", "middle")
-            //     .attr("dx", 0)
-            //     .attr("dy", ".35em")
-            //     .text("text");
-            //
-            // this.insert("rect","text")
-            //     .attr("width", function(d){return d.bbox.width})
-            //     .attr("height", function(d){return d.bbox.height})
-            //     .style("fill", "yellow");
-
-            d3.select(rect).data(rect).enter().append('text').text(function (d) {
-                return d;
-            });
-            window.functions.push(rect);
-            console.log('clicked line', d3.event, d3.select(this));
-        });
+        circle.on('click', drawFunction);
 
         window.circles.push(circle);
     }
@@ -154,7 +145,7 @@ d3.json("data.json", function (err, data) {
                 targetList = this.parentElement.parentElement;
                 d3.select(this).classed("selected", true);
                 if (!!targetList && !!sourceList && targetList !== sourceList) {
-                    console.log(this);
+                    //console.log(this);
                 }
             })
             .on("mouseout", function (d) {
