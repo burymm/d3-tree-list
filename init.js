@@ -9,11 +9,16 @@ let elementToDrag;
 let sourceList;
 let targetList;
 let targetElement;
+let linkList = [];
 
 const lineColor = 'blue';
 
 window.circles = [];
 window.functions = [];
+
+function getList() {
+    return linkList;
+}
 
 function dragstarted(d) {
     //d3.select(this).raise().classed("active", true);
@@ -65,33 +70,28 @@ function drawFunction() {
 }
 
 function dragended(d) {
-    // d3.select(this).classed("active", false);
-    // console.log('dragended');
     this.style.left = init.x;
     this.style.top = init.y;
     this.classList.remove('dragging');
     isDragging = false;
+    linkList.push({
+        source: this.getAttribute('xpath'),
+        target: targetElement.getAttribute('xpath'),
+    });
     console.log('connection from', this, ' to ', targetElement);
+    console.log('list', linkList);
 
     if (!!sourceList && !!targetList && sourceList !== targetList) {
-        // var circle = container.append("line")
-        //     .attr("x1", sourceList.clientLeft + sourceList.clientWidth)
-        //     .attr("y1", init.y)
-        //     .attr("x2", targetElement.offsetParent.offsetLeft)
-        //     .attr("y2", d3.event.sourceEvent.clientY)
-        //     .attr("stroke-width", 3)
-        //     .attr("stroke", "black");
-
         const arrowLength = 70;
         const x1 = Math.round(sourceList.clientLeft + sourceList.clientWidth) + arrowLength;
         const y1 = Math.round(parseInt(init.y));
         const x2 = Math.round(targetElement.offsetParent.offsetLeft) - arrowLength;
         const y2 = Math.round(targetElement.offsetTop) + window.scrollY  - 5;
-        const k = (y1 - y2) / (x1 - x2);
-        const b = y1 - k * x1;
-        const minX = Math.abs(x1 - x2) * 0.4;
-        const xn = Math.round(Math.round(Math.random() * (Math.abs(x1 - x2) + minX)) + x1 - minX);
-        const yn = Math.round(xn * k + b) - 20;
+        // const k = (y1 - y2) / (x1 - x2);
+        // const b = y1 - k * x1;
+        // const minX = Math.abs(x1 - x2) * 0.4;
+        // const xn = Math.round(Math.round(Math.random() * (Math.abs(x1 - x2) + minX)) + x1 - minX);
+        // const yn = Math.round(xn * k + b) - 20;
         var lineData = [{
             "x": x1 - arrowLength,
             "y": y1,
@@ -100,10 +100,6 @@ function dragended(d) {
                'x': x1 + arrowLength,
                'y': y1
             },
-            // {
-            //     "x": xn < x1 ? x1 + minX : xn,
-            //     "y": yn,
-            // },
             {
                 "x": x2,
                 "y": y2,
@@ -123,10 +119,6 @@ function dragended(d) {
             .attr("stroke", lineColor)
             .attr("stroke-width", 2)
             .attr("fill", "none");
-
-        // circle.on('click', drawFunction);
-
-        //window.circles.push(circle);
     }
 }
 
@@ -142,10 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container = d3.select("body").append("svg")
         .attr('class',  'container')
         .attr("width", window.innerWidth)
-        .attr("height", window.innerHeight)
-       /* .on('click', (e) => {
-            console.log(e);
-        })*/;
+        .attr("height", window.innerHeight);
 
      // add arrows
     container.append("svg:defs").append("svg:marker")
