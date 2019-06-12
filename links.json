@@ -1,0 +1,18 @@
+[
+  {
+    "source": "MaxFlowMinCut\\RectangleInterpolator",
+    "target": "MaxFlowMinCut"
+  },
+  {
+    "source": "FIToFICstmrCdtTrf\\AgglomerativeCluster",
+    "target": "FIToFICstmrCdtTrf\\AgglomerativeCluster"
+  },
+  {
+    "source": "FIToFICstmrCdtTrf\\GrpHdr",
+    "target": "optimization\\Easing"
+  },
+  {
+    "source": "FIToFICstmrCdtTrf\\MergeEdge",
+    "target": "FIToFICstmrCdtTrf\\GrpHdr"
+  }
+]

@@ -1,6 +1,7 @@
 var init = {
     x: 0,
     y: 0,
+    element: null,
 };
 
 let container;
@@ -26,6 +27,7 @@ function dragstarted(d) {
     //console.log('drag', this);
     init.x = this.style.left;
     init.y = this.style.top;
+    init.element = this;
     isDragging = true;
 
     sourceList = this.parentElement.parentElement;
@@ -69,6 +71,47 @@ function drawFunction() {
     console.log('clicked line', d3.event, d3.select(this));
 }
 
+function drawLink(sourceElement, targetElement) {
+    const sourceList = sourceElement.parentElement.parentElement;
+    const arrowLength = 70;
+    const x1 = Math.round(sourceList.clientLeft + sourceList.clientWidth) + arrowLength;
+    const y1 = Math.round(parseInt(sourceElement.style.top));
+    const x2 = Math.round(targetElement.offsetParent.offsetLeft) - arrowLength;
+    const y2 = Math.round(targetElement.offsetTop) + window.scrollY  - 5;
+    // const k = (y1 - y2) / (x1 - x2);
+    // const b = y1 - k * x1;
+    // const minX = Math.abs(x1 - x2) * 0.4;
+    // const xn = Math.round(Math.round(Math.random() * (Math.abs(x1 - x2) + minX)) + x1 - minX);
+    // const yn = Math.round(xn * k + b) - 20;
+    var lineData = [{
+        "x": x1 - arrowLength,
+        "y": y1,
+    },
+        {
+            'x': x1 + arrowLength,
+            'y': y1
+        },
+        {
+            "x": x2,
+            "y": y2,
+        }, {
+            'x': x2 + arrowLength,
+            'y': y2,
+        }];
+
+    var lineFunction = d3.svg.line()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .interpolate("cardinal");
+
+    var lineGraph = container.append("path")
+        .attr("marker-end", "url(#triangle)")
+        .attr("d", lineFunction(lineData))
+        .attr("stroke", lineColor)
+        .attr("stroke-width", 2)
+        .attr("fill", "none");
+}
+
 function dragended(d) {
     this.style.left = init.x;
     this.style.top = init.y;
@@ -82,43 +125,7 @@ function dragended(d) {
     console.log('list', linkList);
 
     if (!!sourceList && !!targetList && sourceList !== targetList) {
-        const arrowLength = 70;
-        const x1 = Math.round(sourceList.clientLeft + sourceList.clientWidth) + arrowLength;
-        const y1 = Math.round(parseInt(init.y));
-        const x2 = Math.round(targetElement.offsetParent.offsetLeft) - arrowLength;
-        const y2 = Math.round(targetElement.offsetTop) + window.scrollY  - 5;
-        // const k = (y1 - y2) / (x1 - x2);
-        // const b = y1 - k * x1;
-        // const minX = Math.abs(x1 - x2) * 0.4;
-        // const xn = Math.round(Math.round(Math.random() * (Math.abs(x1 - x2) + minX)) + x1 - minX);
-        // const yn = Math.round(xn * k + b) - 20;
-        var lineData = [{
-            "x": x1 - arrowLength,
-            "y": y1,
-            },
-            {
-               'x': x1 + arrowLength,
-               'y': y1
-            },
-            {
-                "x": x2,
-                "y": y2,
-            }, {
-                'x': x2 + arrowLength,
-                'y': y2,
-            }];
-
-        var lineFunction = d3.svg.line()
-                                .x(function(d) { return d.x; })
-                                .y(function(d) { return d.y; })
-                                .interpolate("cardinal");
-
-        var lineGraph = container.append("path")
-            .attr("marker-end", "url(#triangle)")
-            .attr("d", lineFunction(lineData))
-            .attr("stroke", lineColor)
-            .attr("stroke-width", 2)
-            .attr("fill", "none");
+        drawLink(init.element, targetElement);
     }
 }
 
@@ -127,6 +134,16 @@ function mouseMoving(d) {
         elementToDrag = this;
         //console.log(this, 'mouseMoving', new Date(), d);
     }
+}
+
+function getElementByXpath(xpath, prefix) {
+    return document.querySelector(`${prefix ? prefix + ' ' : ''}[xpath=${xpath.replace('\\', '\\\\')}]`);
+}
+
+function drawLinks(data) {
+    data.forEach((item) => {
+       drawLink(getElementByXpath(item.source, '#list1'), getElementByXpath(item.target, '#list2'));
+    });
 }
 
 
@@ -149,18 +166,69 @@ document.addEventListener('DOMContentLoaded', () => {
         .attr("d", "M 0 0 12 6 0 12 3 6")
         .style("fill", lineColor);
 
-    drawTree();
+   // drawTree();
+
+    Promise.all([
+        loadTarget(),
+        loadSource(),
+        loadLinks(),
+    ]).then(([targetData, sourceData, linkData]) => {
+        var targetContainer = d3.select("#list1").append("ul").classed("treelist", "true");
+
+        var sourceContainer = d3.select("#list2").append("ul").classed("treelist", "true");
+
+        drawTree(targetData, targetContainer);
+        drawTree(sourceData, sourceContainer);
+        setTimeout( () => {
+            drawLinks(linkData);
+        }, 1000);
+        console.log('load from promise', targetData, sourceData, linkData);
+    });
+   // drawLinks();
 });
 
-function drawTree() {
+function loadTarget() {
+    return new Promise((resolve, reject) => {
+        d3.json('data-r.json', function(err, data) {
+            if (err) {
+                reject(err);
+            }
+
+            resolve(data);
+        });
+    });
+}
+
+function loadSource() {
+    return new Promise((resolve, reject) => {
+        d3.json('data-r2.json', function(err, data) {
+            if (err) {
+                reject(err);
+            }
+
+            resolve(data);
+        });
+    });
+}
+
+function loadLinks() {
+    return new Promise((resolve, reject) => {
+        d3.json('links.json', function(err, data) {
+            if (err) {
+                reject(err);
+            }
+
+            resolve(data);
+        });
+    });
+}
+
+function drawTree(data, treeContainer) {
     var id = 0;
-    d3.json("data-r.json", function (err, data) {
         var tree = d3.layout.treelist()
             .childIndent(10)
             .nodeHeight(30);
-        var ul1 = d3.select("#list1").append("ul").classed("treelist", "true");
 
-        var ul2 = d3.select("#list2").append("ul").classed("treelist", "true");
 
         function render(data, parent, element) {
             var nodes = tree.nodes(data),
@@ -250,10 +318,7 @@ function drawTree() {
         const renderData = Object.assign({}, data);
         renderData.children = renderData.data;
 
-        render(renderData, renderData, ul1);
-        render(renderData, renderData, ul2);
-
-    });
+        render(renderData, renderData, treeContainer);
 }
 
 
