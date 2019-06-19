@@ -332,7 +332,7 @@ window.TreeListMapper = () => {
                        targetData,
                        linksData,
                    }) => {
-            container = d3.select("body").append("svg")
+            container = d3.select("#tree-container").append("svg")
                 .attr('class', 'container')
                 .attr("width", window.innerWidth)
                 .attr("height", window.innerHeight);
