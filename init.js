@@ -1,4 +1,4 @@
-export function TreeListMapper() {
+window.TreeListMapper = () => {
     var init = {
         x: 0,
         y: 0,
@@ -366,6 +366,5 @@ export function TreeListMapper() {
     }
 };
 
-window.TreeListMapper = window.TreeListMapper || TreeListMapper;
 
 
