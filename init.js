@@ -313,8 +313,6 @@ window.TreeListMapper = () => {
                 .attr("d", "M 0 0 12 6 0 12 3 6")
                 .style("fill", lineColor);
 
-            // drawTree();
-
             Promise.all([
                 loadTarget(target),
                 loadSource(source),
@@ -331,8 +329,40 @@ window.TreeListMapper = () => {
                 }, 1000);
                 console.log('load from promise', targetData, sourceData, linkData);
             });
-            // drawLinks();
-        }
+        },
+        initData: ({
+                       sourceData,
+                       targetData,
+                       linksData,
+                   }) => {
+            container = d3.select("body").append("svg")
+                .attr('class', 'container')
+                .attr("width", window.innerWidth)
+                .attr("height", window.innerHeight);
+
+            // add arrows
+            container.append("svg:defs").append("svg:marker")
+                .attr("id", "triangle")
+                .attr("refX", 6)
+                .attr("refY", 6)
+                .attr("markerWidth", 30)
+                .attr("markerHeight", 30)
+                .attr("markerUnits", "userSpaceOnUse")
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M 0 0 12 6 0 12 3 6")
+                .style("fill", lineColor);
+
+                var targetContainer = d3.select("#list1").append("ul").classed("treelist", "true");
+
+                var sourceContainer = d3.select("#list2").append("ul").classed("treelist", "true");
+
+                drawTree(targetData, targetContainer);
+                drawTree(sourceData, sourceContainer);
+                setTimeout(() => {
+                    drawLinks(linksData);
+                }, 1000);
+        },
     }
 };
 
